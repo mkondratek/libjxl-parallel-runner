@@ -67,9 +67,34 @@ class CodersSet:
         )
     )
 
+    brunsli: EncoderAndDecoder = EncoderAndDecoder(
+        name='brunsli',
+        encoder=Program(
+            exec='executables/brunsli/cbrunsli',
+            args=lambda i, o: [i,  o]
+        ),
+        decoder=Program(
+            exec='executables/brunsli/dbrunsli',
+            args=lambda i, o: [ i,  o]
+        )
+    )
+
+
+    lepton: EncoderAndDecoder = EncoderAndDecoder(
+        name='lepton',
+        encoder=Program(
+            exec='executables/lepton/lepton',
+            args=lambda i, o: [i,  o]
+        ),
+        decoder=Program(
+            exec='executables/lepton/lepton',
+            args=lambda i, o: [ i,  o]
+        )
+    )
+
     @staticmethod
     def all():
-        return [CodersSet.acp, CodersSet.libjxl, CodersSet.brotli]
+        return [CodersSet.acp, CodersSet.libjxl, CodersSet.brotli, CodersSet.brunsli, CodersSet.lepton]
 
 
 @dataclass
@@ -144,7 +169,7 @@ def run_for_exec(execs: EncoderAndDecoder, data: str, workdir: str):
     sub_wd = f'{workdir}/{execs.name}'
     os.mkdir(sub_wd)
 
-    header = ['jpg_file_name', 'width', 'height', 'jpg_bytes', 'jpg_bpp', 'jxl_bytes', 'jxl_bpp', 'enc_time',
+    header = ['jpg_file_name', 'width', 'height', 'jpg_bytes', 'jpg_bpp', 'compressed_bytes', 'compressed_bpp', 'enc_time',
               'dec_time']
     with open(f'{sub_wd}-stats.csv', 'w', encoding='UTF8') as stats_file:
         stats_writer = csv.writer(stats_file)
