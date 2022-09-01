@@ -54,16 +54,17 @@ def compress_and_decompress(execs: Execs, in_jpg_path: str, workdir_name: str, s
 
     os.mkdir(f'{workdir_name}/{img_wd}')
 
-    start_time = time.time()
-    subprocess.check_call(enc_args)
-    end_time = time.time()
-    enc_time = end_time-start_time
-    start_time = time.time()
-    subprocess.check_call(dec_args)
-    end_time = time.time()
-    dec_time = end_time-start_time
+    commands = [enc_args, dec_args]
+    command_times: list[float] = []
+    for command in commands:
+        start_time = time.time()
+        output = subprocess.check_output(command)
+        end_time = time.time()
+        command_times += [end_time - start_time]
+        with open(f'{workdir_name}/{img_wd}/{basename(command[0])}-output.txt', 'wb') as f:
+            f.write(output)
 
-    data = get_csv_data(in_jpg_path, out_jxl_path, enc_time, dec_time)
+    data = get_csv_data(in_jpg_path, out_jxl_path, command_times[0], command_times[1])
     stats_writer.writerow(data)
 
     in_sha256 = get_sha256(in_jpg_path)
@@ -72,7 +73,7 @@ def compress_and_decompress(execs: Execs, in_jpg_path: str, workdir_name: str, s
         raise Exception(f'Checksum mismatch!\nInput image: {in_sha256}\nOutput image: {out_sha256}')
 
 
-def get_csv_data(in_jpg_path: str, out_jxl_path: str, enc_time, dec_time) -> list:
+def get_csv_data(in_jpg_path: str, out_jxl_path: str, enc_time: float, dec_time: float) -> list:
     jpg_image_info = get_image_info(in_jpg_path)
     jxl_image_info = copy.copy(jpg_image_info)
     jxl_image_info.path = out_jxl_path
@@ -114,7 +115,7 @@ def run_for_exec(execs: Execs, data: str, workdir: str):
         for jpg in os.listdir(data):
             compress_and_decompress(execs, f'{data}/{jpg}', sub_wd, stats_writer)
         time_end = time.time()
-        print(f'Overall time for {execs.name}: {(time_end-time_start):.3f}s')
+        print(f'Overall time for {execs.name}: {(time_end - time_start):.3f}s')
 
 
 def main():
