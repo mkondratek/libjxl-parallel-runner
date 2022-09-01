@@ -121,11 +121,13 @@ def compress_and_decompress(execs: EncoderAndDecoder, in_jpg_path: str, workdir_
     command_times: list[float] = []
     for command in commands:
         start_time = time.time()
-        output = subprocess.check_output(command)
+        process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         end_time = time.time()
         command_times += [end_time - start_time]
-        with open(f'{workdir_name}/{img_wd}/{basename(command[0])}-output.txt', 'wb') as f:
-            f.write(output)
+        with open(f'{workdir_name}/{img_wd}/{basename(command[0])}-stdout.txt', 'wb') as f:
+            f.write(process.stdout)
+        with open(f'{workdir_name}/{img_wd}/{basename(command[0])}-stderr.txt', 'wb') as f:
+            f.write(process.stderr)
 
     data = get_csv_data(in_jpg_path, out_jxl_path, command_times[0], command_times[1])
     stats_writer.writerow(data)
