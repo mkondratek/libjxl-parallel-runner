@@ -10,7 +10,7 @@ The main goal for that is to gather the compression/decompression results and st
 Different executables are to be stored under `executables/<version-name>` directory.
 Initially, this repo contains two versions of libjxl:
 1. `executables/libjxl` ([0103e5a901b776c46b55081fd6b647fbdd618472](https://github.com/libjxl/libjxl/tree/0103e5a901b776c46b55081fd6b647fbdd618472)) - plain libjxl
-2. `executables/acp` ([806ffa55d9d0c2840ed7f8082d7a5b888980be5b](https://github.com/mkondratek/libjxl-ac-prediction/tree/806ffa55d9d0c2840ed7f8082d7a5b888980be5b)) - libjxl enhanced with AC prediction 
+2. `executables/acp` ([18ea4a4990ecaafe37506a8b34dfaa8f17f1d6e1](https://github.com/mkondratek/libjxl-ac-prediction/tree/18ea4a4990ecaafe37506a8b34dfaa8f17f1d6e1)) - libjxl enhanced with AC prediction 
 
 Each version directory contains both `cjxl` and `djxl` compile from a code of specific version.
 
