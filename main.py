@@ -125,14 +125,15 @@ def main():
     os.mkdir(workdir)
     print(f'Start ({workdir})')
 
-    libjxl_thread = threading.Thread(target=run_for_exec, args=(ExecsSet.libjxl, data, workdir))
-    acp_thread = threading.Thread(target=run_for_exec, args=(ExecsSet.acp, data, workdir))
+    execs_list = [ExecsSet.acp, ExecsSet.libjxl]
+    threads_list = []
+    for execs in execs_list:
+        thread = threading.Thread(target=run_for_exec, args=(execs, data, workdir))
+        threads_list += [thread]
+        thread.start()
 
-    libjxl_thread.start()
-    acp_thread.start()
-
-    libjxl_thread.join()
-    acp_thread.join()
+    for thread in threads_list:
+        thread.join()
 
     end_time = time.time()
     print(f'Done ({int(end_time)})')
