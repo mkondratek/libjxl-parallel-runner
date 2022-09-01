@@ -8,30 +8,68 @@ import threading
 import time
 from dataclasses import dataclass
 from os.path import basename
+from typing import Callable
 
 from PIL import Image
 
 
 @dataclass
-class Execs:
-    name: str
-    djxl: str
-    cjxl: str
+class Program:
+    exec: str
+    args: Callable[[str, str], list[int]]
+
+    def cmd(self, i: str, o: str) -> list[str]:
+        return [self.exec, *self.args(i, o)]
 
 
 @dataclass
-class ExecsSet:
-    libjxl: Execs = Execs(
+class EncoderAndDecoder:
+    name: str
+    encoder: Program
+    decoder: Program
+
+
+@dataclass
+class CodersSet:
+    libjxl: EncoderAndDecoder = EncoderAndDecoder(
         name='libjxl',
-        djxl='executables/libjxl/djxl',
-        cjxl='executables/libjxl/cjxl'
+        encoder=Program(
+            exec='executables/libjxl/cjxl',
+            args=lambda i, o: ['--quiet', '--lossless_jpeg=1', i, o]
+        ),
+        decoder=Program(
+            exec='executables/libjxl/djxl',
+            args=lambda i, o: ['--quiet', i, o]
+        )
     )
 
-    acp: Execs = Execs(
+    acp: EncoderAndDecoder = EncoderAndDecoder(
         name='acp',
-        djxl='executables/acp/djxl',
-        cjxl='executables/acp/cjxl'
+        encoder=Program(
+            exec='executables/acp/cjxl',
+            args=lambda i, o: ['--quiet', '--lossless_jpeg=1', i, o]
+        ),
+        decoder=Program(
+            exec='executables/acp/djxl',
+            args=lambda i, o: ['--quiet', i, o]
+        )
     )
+
+    brotli: EncoderAndDecoder = EncoderAndDecoder(
+        name='brotli',
+        encoder=Program(
+            exec='executables/brotli/brotli',
+            args=lambda i, o: [i, '-o', o]
+        ),
+        decoder=Program(
+            exec='executables/brotli/brotli',
+            args=lambda i, o: ['--decompress', i, '-o', o]
+        )
+    )
+
+    @staticmethod
+    def all():
+        return [CodersSet.acp, CodersSet.libjxl, CodersSet.brotli]
 
 
 @dataclass
@@ -45,16 +83,16 @@ class ImageInfo:
         return self.bytes / (self.width * self.height)
 
 
-def compress_and_decompress(execs: Execs, in_jpg_path: str, workdir_name: str, stats_writer):
+def compress_and_decompress(execs: EncoderAndDecoder, in_jpg_path: str, workdir_name: str, stats_writer):
     img_wd = basename(in_jpg_path).replace('.', '_')
     out_jxl_path = f'{workdir_name}/{img_wd}/output.jxl'
     out_jpg_path = f'{workdir_name}/{img_wd}/output.jpg'
-    enc_args = [execs.cjxl, '--quiet', '--lossless_jpeg=1', in_jpg_path, out_jxl_path]
-    dec_args = [execs.djxl, '--quiet', out_jxl_path, out_jpg_path]
+    enc_cmd = execs.encoder.cmd(in_jpg_path, out_jxl_path)
+    dec_cmd = execs.decoder.cmd(out_jxl_path, out_jpg_path)
 
     os.mkdir(f'{workdir_name}/{img_wd}')
 
-    commands = [enc_args, dec_args]
+    commands = [enc_cmd, dec_cmd]
     command_times: list[float] = []
     for command in commands:
         start_time = time.time()
@@ -102,18 +140,23 @@ def get_sha256(file) -> str:
     return sha256.hexdigest()
 
 
-def run_for_exec(execs: Execs, data: str, workdir: str):
+def run_for_exec(execs: EncoderAndDecoder, data: str, workdir: str):
     sub_wd = f'{workdir}/{execs.name}'
     os.mkdir(sub_wd)
 
-    header = ['jpg_file_name', 'width', 'height', 'jpg_bytes', 'jpg_bpp', 'jxl_bytes', 'jxl_bpp', 'enc_time', 'dec_time']
+    header = ['jpg_file_name', 'width', 'height', 'jpg_bytes', 'jpg_bpp', 'jxl_bytes', 'jxl_bpp', 'enc_time',
+              'dec_time']
     with open(f'{sub_wd}-stats.csv', 'w', encoding='UTF8') as stats_file:
         stats_writer = csv.writer(stats_file)
         stats_writer.writerow(header)
 
         time_start = time.time()
+
         for jpg in os.listdir(data):
+            if not jpg.endswith('.jpg'):
+                continue
             compress_and_decompress(execs, f'{data}/{jpg}', sub_wd, stats_writer)
+
         time_end = time.time()
         print(f'Overall time for {execs.name}: {(time_end - time_start):.3f}s')
 
@@ -126,7 +169,7 @@ def main():
     os.mkdir(workdir)
     print(f'Start ({workdir})')
 
-    execs_list = [ExecsSet.acp, ExecsSet.libjxl]
+    execs_list = CodersSet.all()
     threads_list = []
     for execs in execs_list:
         thread = threading.Thread(target=run_for_exec, args=(execs, data, workdir))
