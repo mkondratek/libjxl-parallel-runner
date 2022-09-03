@@ -1,12 +1,11 @@
 import csv
 import os
-import subprocess
 import sys
 import threading
 import time
 from os.path import basename
 
-from commons import get_sha256, get_csv_data
+from commons import run_commands
 from data import EncoderAndDecoder, CodersSet
 
 
@@ -18,26 +17,10 @@ def compress_and_decompress(execs: EncoderAndDecoder, in_jpg_path: str, workdir_
     dec_cmd = execs.decoder.cmd([out_jxl_path, out_jpg_path])
 
     os.mkdir(f'{workdir_name}/{img_wd}')
+    img_wd_path = f'{workdir_name}/{img_wd}'
 
     commands = [enc_cmd, dec_cmd]
-    command_times: list[float] = []
-    for command in commands:
-        start_time = time.time()
-        process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        end_time = time.time()
-        command_times += [end_time - start_time]
-        with open(f'{workdir_name}/{img_wd}/{basename(command[0])}-stdout.txt', 'wb') as f:
-            f.write(process.stdout)
-        with open(f'{workdir_name}/{img_wd}/{basename(command[0])}-stderr.txt', 'wb') as f:
-            f.write(process.stderr)
-
-    data = get_csv_data(in_jpg_path, out_jxl_path, command_times[0], command_times[1])
-    stats_writer.writerow(data)
-
-    in_sha256 = get_sha256(in_jpg_path)
-    out_sha256 = get_sha256(out_jpg_path)
-    if in_sha256 != out_sha256:
-        raise Exception(f'Checksum mismatch!\nInput image: {in_sha256}\nOutput image: {out_sha256}')
+    run_commands(commands, img_wd_path, in_jpg_path, out_jpg_path, out_jxl_path, stats_writer)
 
 
 def run_for_exec(execs: EncoderAndDecoder, data: str, workdir: str):

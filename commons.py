@@ -1,6 +1,9 @@
 import copy
 import hashlib
 import os
+import subprocess
+import time
+from os.path import basename
 
 from PIL import Image
 
@@ -34,3 +37,22 @@ def get_sha256(file) -> str:
             sha256.update(data)
 
     return sha256.hexdigest()
+
+
+def run_commands(commands, img_wd_path, in_jpg_path, out_jpg_path, out_jxl_path, stats_writer):
+    command_times: list[float] = []
+    for command in commands:
+        start_time = time.time()
+        process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        end_time = time.time()
+        command_times += [end_time - start_time]
+        with open(f'{img_wd_path}/{basename(command[0])}-stdout.txt', 'wb') as f:
+            f.write(process.stdout)
+        with open(f'{img_wd_path}/{basename(command[0])}-stderr.txt', 'wb') as f:
+            f.write(process.stderr)
+    data = get_csv_data(in_jpg_path, out_jxl_path, command_times[0], command_times[1])
+    stats_writer.writerow(data)
+    in_sha256 = get_sha256(in_jpg_path)
+    out_sha256 = get_sha256(out_jpg_path)
+    if in_sha256 != out_sha256:
+        raise Exception(f'Checksum mismatch!\nInput image: {in_sha256}\nOutput image: {out_sha256}')
