@@ -55,4 +55,4 @@ def run_commands(commands, img_wd_path, in_jpg_path, out_jpg_path, out_jxl_path,
     in_sha256 = get_sha256(in_jpg_path)
     out_sha256 = get_sha256(out_jpg_path)
     if in_sha256 != out_sha256:
-        raise Exception(f'Checksum mismatch!\nInput image: {in_sha256}\nOutput image: {out_sha256}')
+        raise Exception(f'Checksum mismatch ({img_wd_path})!\nInput image: {in_sha256}\nOutput image: {out_sha256}')

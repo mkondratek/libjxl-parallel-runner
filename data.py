@@ -44,6 +44,18 @@ class CodersSet:
         )
     )
 
+    acp_coeffs: EncoderAndDecoder = EncoderAndDecoder(
+        name='acp-coeffs',
+        encoder=Program(
+            exec='executables/acp-coeffs/cjxl',
+            args=lambda params: ['--lossless_jpeg=1', params[0], params[1], params[2]]
+        ),
+        decoder=Program(
+            exec='executables/acp-coeffs/djxl',
+            args=lambda params: [params[0], params[1], params[2]]
+        )
+    )
+
     brotli: EncoderAndDecoder = EncoderAndDecoder(
         name='brotli',
         encoder=Program(
