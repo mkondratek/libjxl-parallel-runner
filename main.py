@@ -17,8 +17,8 @@ def compress_and_decompress(execs: EncoderAndDecoder, in_jpg_path: str, workdir_
     img_wd = basename(in_jpg_path).replace('.', '_')
     out_jxl_path = f'{workdir_name}/{img_wd}/output.jxl'
     out_jpg_path = f'{workdir_name}/{img_wd}/output.jpg'
-    enc_cmd = execs.encoder.cmd(in_jpg_path, out_jxl_path)
-    dec_cmd = execs.decoder.cmd(out_jxl_path, out_jpg_path)
+    enc_cmd = execs.encoder.cmd([in_jpg_path, out_jxl_path])
+    dec_cmd = execs.decoder.cmd([out_jxl_path, out_jpg_path])
 
     os.mkdir(f'{workdir_name}/{img_wd}')
 

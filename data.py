@@ -5,10 +5,10 @@ from typing import Callable
 @dataclass
 class Program:
     exec: str
-    args: Callable[[str, str], list[str]]
+    args: Callable[[list[str]], list[str]]
 
-    def cmd(self, i: str, o: str) -> list[str]:
-        return [self.exec, *self.args(i, o)]
+    def cmd(self, params: list[str]) -> list[str]:
+        return [self.exec, *self.args(params)]
 
 
 @dataclass
@@ -24,11 +24,11 @@ class CodersSet:
         name='libjxl',
         encoder=Program(
             exec='executables/libjxl/cjxl',
-            args=lambda i, o: ['--quiet', '--lossless_jpeg=1', i, o]
+            args=lambda params: ['--quiet', '--lossless_jpeg=1', params[0], params[1]]
         ),
         decoder=Program(
             exec='executables/libjxl/djxl',
-            args=lambda i, o: ['--quiet', i, o]
+            args=lambda params: ['--quiet', params[0], params[1]]
         )
     )
 
@@ -36,11 +36,11 @@ class CodersSet:
         name='acp',
         encoder=Program(
             exec='executables/acp/cjxl',
-            args=lambda i, o: ['--quiet', '--lossless_jpeg=1', i, o]
+            args=lambda params: ['--quiet', '--lossless_jpeg=1', params[0], params[1]]
         ),
         decoder=Program(
             exec='executables/acp/djxl',
-            args=lambda i, o: ['--quiet', i, o]
+            args=lambda params: ['--quiet', params[0], params[1]]
         )
     )
 
@@ -48,11 +48,11 @@ class CodersSet:
         name='brotli',
         encoder=Program(
             exec='executables/brotli/brotli',
-            args=lambda i, o: [i, '-o', o]
+            args=lambda params: [params[0], '-o', params[1]]
         ),
         decoder=Program(
             exec='executables/brotli/brotli',
-            args=lambda i, o: ['--decompress', i, '-o', o]
+            args=lambda params: ['--decompress', params[0], '-o', params[1]]
         )
     )
 
@@ -60,11 +60,11 @@ class CodersSet:
         name='brunsli',
         encoder=Program(
             exec='executables/brunsli/cbrunsli',
-            args=lambda i, o: [i, o]
+            args=lambda params: [params[0], params[1]]
         ),
         decoder=Program(
             exec='executables/brunsli/dbrunsli',
-            args=lambda i, o: [i, o]
+            args=lambda params: [params[0], params[1]]
         )
     )
 
@@ -72,11 +72,11 @@ class CodersSet:
         name='lepton',
         encoder=Program(
             exec='executables/lepton/lepton',
-            args=lambda i, o: [i, o]
+            args=lambda params: [params[0], params[1]]
         ),
         decoder=Program(
             exec='executables/lepton/lepton',
-            args=lambda i, o: [i, o]
+            args=lambda params: [params[0], params[1]]
         )
     )
 
