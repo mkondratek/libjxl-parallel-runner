@@ -15,11 +15,11 @@ Initially, this repo contains two versions of libjxl and a few other image coder
 2. `executables/acp` ([18ea4a4990ecaafe37506a8b34dfaa8f17f1d6e1](https://github.com/mkondratek/libjxl-ac-prediction/tree/18ea4a4990ecaafe37506a8b34dfaa8f17f1d6e1))
     - libjxl enhanced with AC prediction
 3. `executables/brunsli` ([300af107deecab45bec40c2df90611bb533b606b](https://github.com/google/brunsli/tree/300af107deecab45bec40c2df90611bb533b606b))
-    - libjxl enhanced with AC prediction
+    - brunsli
 4. `executables/brotli` ([9801a2c5d6c67c467ffad676ac301379bb877fc3](https://github.com/google/brotli/tree/9801a2c5d6c67c467ffad676ac301379bb877fc3))
-    - libjxl enhanced with AC prediction
+    - brotli
 5. `executables/lepton` ([429fe880d331b49a5be08b4d8dc762cbada6d4ca](https://github.com/dropbox/lepton/tree/429fe880d331b49a5be08b4d8dc762cbada6d4ca))
-    - libjxl enhanced with AC prediction
+    - lepton
 
 For libjxl-based coders each version directory contains both `cjxl` and `djxl` compile from a code of specific version.
 
