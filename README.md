@@ -10,9 +10,9 @@ The main goal for that is to gather the compression/decompression results and st
 Different executables are to be stored under `executables/<coder-name>` directory.
 Initially, this repo contains two versions of libjxl and a few other image coders:
 
-1. `executables/libjxl` ([0103e5a901b776c46b55081fd6b647fbdd618472](https://github.com/libjxl/libjxl/tree/0103e5a901b776c46b55081fd6b647fbdd618472))
+1. `executables/libjxl` ([7fada7a4061c979b1021068e0a1811c1eeadf0d7](https://github.com/libjxl/libjxl/tree/7fada7a4061c979b1021068e0a1811c1eeadf0d7))
     - plain libjxl
-2. `executables/acp` ([18ea4a4990ecaafe37506a8b34dfaa8f17f1d6e1](https://github.com/mkondratek/libjxl-ac-prediction/tree/18ea4a4990ecaafe37506a8b34dfaa8f17f1d6e1))
+2. `executables/acp` ([7506630093ebe8227be40e98ec1299a681bd0888](https://github.com/mkondratek/libjxl-ac-prediction/tree/7506630093ebe8227be40e98ec1299a681bd0888))
     - libjxl enhanced with AC prediction
 3. `executables/brunsli` ([300af107deecab45bec40c2df90611bb533b606b](https://github.com/google/brunsli/tree/300af107deecab45bec40c2df90611bb533b606b))
     - brunsli
@@ -21,7 +21,7 @@ Initially, this repo contains two versions of libjxl and a few other image coder
 5. `executables/lepton` ([429fe880d331b49a5be08b4d8dc762cbada6d4ca](https://github.com/dropbox/lepton/tree/429fe880d331b49a5be08b4d8dc762cbada6d4ca))
     - lepton
 
-For libjxl-based coders each version directory contains both `cjxl` and `djxl` compile from a code of specific version.
+For libjxl-based coders each version directory contains **all build output** from a code of specific version.
 
 ## Run
 
