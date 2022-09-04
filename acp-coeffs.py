@@ -1,9 +1,11 @@
 import csv
 import os
+import shutil
 import sys
 import threading
 import time
 from os.path import basename
+from pathlib import Path
 
 from commons import run_commands
 from data import EncoderAndDecoder, CodersSet
@@ -17,8 +19,8 @@ def compress_and_decompress(execs: EncoderAndDecoder, in_jpg_path: str, coeffs_p
     enc_cmd = execs.encoder.cmd([in_jpg_path, out_jxl_path, coeffs_path])
     dec_cmd = execs.decoder.cmd([out_jxl_path, out_jpg_path, coeffs_path])
 
-    os.mkdir(f'{workdir_name}/{img_wd}')
     img_wd_path = f'{workdir_name}/{img_wd}'
+    os.mkdir(img_wd_path)
 
     commands = [enc_cmd, dec_cmd]
     run_commands(commands, img_wd_path, in_jpg_path, out_jpg_path, out_jxl_path, stats_writer)
@@ -44,20 +46,23 @@ def run_for_exec(execs: EncoderAndDecoder, data: str, coeffs_path: str, workdir:
 
         time_end = time.time()
         print(f'Overall time for {execs.name} and {coeffs_path}: {(time_end - time_start):.3f}s')
+    shutil.rmtree(sub_wd)
 
 
 def main():
-    data = sys.argv[1]
+    results_path = sys.argv[1]
+    coeffs = sys.argv[2].removesuffix('/')
 
     start_time = time.time()
-    workdir = str(int(start_time))
+    workdir = f'acp-coeffs/{str(int(start_time))}'
     os.mkdir(workdir)
-    print(f'Start ({workdir})')
+    Path(f'{workdir}/{results_path.replace("/", "_")}.TITLE').touch()
+    print(f'Start ({start_time})')
 
     threads_list = []
-    for coeffs_path in os.listdir('coeffs'):
+    for coeffs_path in os.listdir(coeffs):
         thread = threading.Thread(target=run_for_exec,
-                                  args=(CodersSet.acp_coeffs, data, f'coeffs/{coeffs_path}', workdir))
+                                  args=(CodersSet.acp_coeffs, results_path, f'{coeffs}/{coeffs_path}', workdir))
         threads_list += [thread]
         thread.start()
 
