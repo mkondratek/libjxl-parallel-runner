@@ -49,30 +49,35 @@ def run_for_exec(execs: EncoderAndDecoder, data: str, coeffs_path: str, workdir:
     shutil.rmtree(sub_wd)
 
 
-def main():
-    results_path = sys.argv[1]
-    coeffs = sys.argv[2].removesuffix('/')
-
+def run_acp_coeffs_for_set(coeffs_dir_path, jpgs_dir_path):
+    coeffs_dir_path = coeffs_dir_path.removesuffix('/')
+    jpgs_dir_path = jpgs_dir_path.removesuffix('/')
     start_time = time.time()
-    workdir = f'acp-coeffs/{str(int(start_time))}'
+    workdir = f'acp-coeffs/{str(start_time).replace(".", "")}'
     os.mkdir(workdir)
-    Path(f'{workdir}/{results_path.replace("/", "_")}.TITLE').touch()
+    Path(f'{workdir}/{jpgs_dir_path.replace("/", "_")}.TITLE').touch()
     print(f'Start ({start_time})')
-
     threads_list = []
-    for coeffs_path in os.listdir(coeffs):
+    for coeffs_path in [f for f in os.listdir(coeffs_dir_path) if f.endswith('.cff')]:
         thread = threading.Thread(target=run_for_exec,
-                                  args=(CodersSet.acp_coeffs, results_path, f'{coeffs}/{coeffs_path}', workdir))
+                                  args=(
+                                  CodersSet.acp_coeffs, jpgs_dir_path, f'{coeffs_dir_path}/{coeffs_path}', workdir))
         threads_list += [thread]
         thread.start()
-
     for thread in threads_list:
         thread.join()
-
     end_time = time.time()
     print(f'Done ({int(end_time)})')
     time_diff = end_time - start_time
     print(f'Diff ({time_diff:.3f}s)')
+    return workdir
+
+
+def main():
+    jpgs_dir_path = sys.argv[1]
+    coeffs_dir_path = sys.argv[2]
+
+    run_acp_coeffs_for_set(coeffs_dir_path, jpgs_dir_path)
 
 
 if __name__ == '__main__':
